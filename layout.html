@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 House Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <h1>🏠 House Price Prediction App</h1>
+    </header>
+
+    <main style="display: flex; justify-content: center;" >
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© 2025 Mohit Sharma | Machine Learning Project</p>
+    </footer>
+</body>
+</html>
