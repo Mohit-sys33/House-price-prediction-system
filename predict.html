@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="form-container">
+    <h2>Enter House Details</h2>
+    <form method="POST" action="/predict">
+        <input type="number" step="any" name="sqft_lot" placeholder="Sqft Lot" required><br>
+        <input type="number" name="waterfront" placeholder="Waterfront (1=Yes, 0=No)" required><br>
+        <input type="number" name="view" placeholder="View" required><br>
+        <input type="number" name="condition" placeholder="Condition" required><br>
+        <input type="number" name="grade" placeholder="Grade" required><br>
+        <input type="number" name="sqft_above" placeholder="Sqft Above" required><br>
+        <input type="number" name="sqft_basement" placeholder="Sqft Basement" required><br>
+        <input type="number" name="yr_built" placeholder="Year Built" required><br>
+        <input type="number" name="yr_renovated" placeholder="Year Renovated" required><br>
+        <input type="number" name="lat" placeholder="Latitude" required><br>
+        <input type="number" name="long" placeholder="Longitude" required><br>
+        <input type="number" name="living15" placeholder="Living Area in 15 Nearest Houses" required><br>
+        <input type="number" name="lot15" placeholder="Lot Area in 15 Nearest Houses" required><br>
+        <button type="submit">Predict Price</button>
+    </form>
+
+    {% if prediction_text %}
+    <h3>{{ prediction_text }}</h3>
+    {% endif %}
+</div>
+{% endblock %}
