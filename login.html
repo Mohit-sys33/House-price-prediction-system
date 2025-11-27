@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: auto; text-align: center; padding: 40px;">
+  <h2>🔐 Sign In</h2>
+  <div id="sign-in"></div>
+</div>
+
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="{{ clerk_publishable_key }}"
+  src="https://whole-ewe-33.clerk.accounts.dev/npm/@clerk/clerk-js@5.102.0/dist/clerk.browser.js"
+  type="text/javascript">
+</script>
+
+<script>
+let isAuthenticating = false; // Prevent multiple auth attempts
+
+window.addEventListener("load", async () => {
+  // Check if we're in the middle of logging out
+  if (sessionStorage.getItem('logging_out')) {
+    console.log("⏭️ Logout in progress, skipping Clerk initialization");
+    return;
+  }
+  
+  console.log("🔄 Page loaded, initializing Clerk...");
+  await Clerk.load();
+  console.log("✅ Clerk loaded");
+
+  // IMPORTANT: Don't auto-authenticate on login page
+  // Let the user explicitly sign in even if Clerk has a session
+  console.log("📝 Mounting sign-in form...");
+  
+  // Mount sign-in component
+  const signInDiv = document.getElementById("sign-in");
+  if (signInDiv) {
+    Clerk.mountSignIn(document.getElementById("sign-in"), {
+  afterSignInUrl: "/home",  // redirect after successful login
+  afterSignUpUrl: "/home"   // redirect after registration
+});
+  }
+
+  // Listen for sign-in events
+  Clerk.addListener(async (event) => {
+    console.log("📢 Clerk event:", event.type);
+    if (event.type === "signedIn" && !isAuthenticating) {
+      console.log("✅ Sign-in event detected");
+      await handleSignIn();
+    }
+  });
+});
+
+async function handleSignIn() {
+  if (isAuthenticating) {
+    console.log("⏭️ Already authenticating, skipping...");
+    return;
+  }
+
+  isAuthenticating = true;
+  console.log("🔐 Starting authentication...");
+
+  try {
+    if (!Clerk.session || !Clerk.user) {
+      console.log("❌ No session or user found");
+      isAuthenticating = false;
+      return;
+    }
+
+    const sessionId = Clerk.session.id;
+    const userId = Clerk.user.id;
+    const userEmail = Clerk.user.primaryEmailAddress?.emailAddress || 'User';
+    
+    console.log("📤 Sending to Flask:", { 
+      userId: userId.substring(0, 10) + "...", 
+      sessionId: sessionId.substring(0, 10) + "...",
+      email: userEmail
+    });
+
+    const res = await fetch("/auth/callback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        session_id: sessionId, 
+        user_id: userId,
+        email: userEmail
+      }),
+    });
+
+    console.log("📥 Flask response status:", res.status);
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errorText}`);
+    }
+
+    const data = await res.json();
+    console.log("📦 Flask response data:", data);
+
+    if (data.success) {
+      console.log("✅ Authentication successful! Redirecting...");
+      window.location.replace("/home"); // Use replace to avoid back button issues
+    } else {
+      console.error("❌ Authentication failed:", data.error);
+      alert("❌ Session verification failed: " + (data.error || "Unknown error"));
+      isAuthenticating = false;
+    }
+  } catch (error) {
+    console.error("❌ Error during authentication:", error);
+    alert("❌ Network error during sign in: " + error.message);
+    isAuthenticating = false;
+  }
+}
+</script>
+{% endblock %}
