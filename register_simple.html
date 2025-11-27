@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+{% block content %}
+<div style="max-width: 450px; margin: 50px auto; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <h2 style="text-align: center; margin-bottom: 30px; color: #1976d2;">📝 Create Account</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; 
+                    {% if category == 'error' %}background: #ffebee; color: #c62828; border: 1px solid #ef9a9a;
+                    {% elif category == 'success' %}background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;
+                    {% elif category == 'warning' %}background: #fff3e0; color: #ef6c00; border: 1px solid #ffcc80;
+                    {% else %}background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" action="/register">
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Full Name</label>
+            <input type="text" name="name" required 
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box;"
+                   placeholder="John Doe">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Email</label>
+            <input type="email" name="email" required 
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box;"
+                   placeholder="your@email.com">
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Password</label>
+            <input type="password" name="password" required minlength="6"
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box;"
+                   placeholder="At least 6 characters">
+            <small style="display: block; color: #666; margin-top: 5px; font-size: 14px;">Minimum 6 characters</small>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Confirm Password</label>
+            <input type="password" name="confirm_password" required 
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box;"
+                   placeholder="Re-enter your password">
+        </div>
+        
+        <button type="submit" 
+                style="width: 100%; padding: 14px; background: linear-gradient(135deg, #4CAF50, #45a049); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+            Create Account
+        </button>
+    </form>
+    
+    <p style="text-align: center; margin-top: 25px; color: #666;">
+        Already have an account? 
+        <a href="{{ url_for('login') }}" style="color: #1976d2; text-decoration: none; font-weight: 600;">Sign in</a>
+    </p>
+</div>
+
+<style>
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+    
+    input:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+</style>
+{% endblock %}
