@@ -1,0 +1,8 @@
+{% extends 'layout.html' %}
+{% block body %}
+<div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg text-center">
+  <h2 class="text-2xl font-bold mb-4">Predicted House Price</h2>
+  <p class="text-green-700 text-xl">💰 {{ prediction }} USD</p>
+  <a href="{{ url_for('home') }}" class="mt-4 inline-block text-blue-600 underline">Predict Again</a>
+</div>
+{% endblock %}
