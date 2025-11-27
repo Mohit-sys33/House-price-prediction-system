@@ -1,0 +1,291 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="form-container" style="max-width: 700px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+            <h2>🏠 House Price Estimator</h2>
+            <p style="margin: 5px 0 0 0; color: #666;">Welcome, {{ user_name }}!</p>
+        </div>
+        <a href="/logout" style="background: #d32f2f; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">Logout</a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; 
+                    {% if category == 'error' %}background: #ffebee; color: #c62828; border: 1px solid #ef9a9a;
+                    {% elif category == 'success' %}background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7;
+                    {% else %}background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9;{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST" action="/home" id="houseForm">
+        <!-- Basic Details Section -->
+        <div class="form-section">
+                 <h3>📍 Location Details</h3>
+
+    <div class="form-row">
+        <label>Select City:</label>
+        <select name="location" required>
+            <option value="">Select your city...</option>
+            <option value="delhi">Delhi</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="bangalore">Bangalore</option>
+            <option value="chennai">Chennai</option>
+            <option value="kolkata">Kolkata</option>
+            <option value="pune">Pune</option>
+            <option value="hyderabad">Hyderabad</option>
+            <option value="ahmedabad">Ahmedabad</option>
+            <option value="jaipur">Jaipur</option>
+            <option value="lucknow">Lucknow</option>
+        </select>
+        <small>Choose the city where the house is located</small>
+    </div>
+            <h3>📋 Basic Property Details</h3>
+            
+            <div class="form-row">
+                <label>Number of Bedrooms:</label>
+                <input type="number" step="1" name="bedrooms" min="1" max="10" required>
+                <small>Typical range: 1-6 bedrooms</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Number of Bathrooms:</label>
+                <input type="number" step="0.5" name="bathrooms" min="0.5" max="8" required>
+                <small>Example: 2.5 = 2 full bathrooms + 1 half bath</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Living Area (square feet):</label>
+                <input type="number" step="1" name="sqft_living" min="500" max="15000" required>
+                <small>Total interior living space</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Lot Size (square feet):</label>
+                <input type="number" step="1" name="sqft_lot" min="500" max="100000" required>
+                <small>Total land area including yard</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Number of Floors:</label>
+                <input type="number" step="0.5" name="floors" min="1" max="3.5" value="1" required>
+                <small>1, 1.5, 2, 2.5, or 3 floors</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Year Built:</label>
+                <input type="number" step="1" name="yr_built" min="1900" max="2025" required>
+                <small>Year of original construction</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Overall Condition:</label>
+                <select name="condition" required>
+                    <option value="">Select condition...</option>
+                    <option value="1">1 - Poor (major repairs needed)</option>
+                    <option value="2">2 - Fair (some repairs needed)</option>
+                    <option value="3">3 - Average (normal wear)</option>
+                    <option value="4">4 - Good (well maintained)</option>
+                    <option value="5">5 - Excellent (like new)</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Optional Advanced Details -->
+        <div class="form-section optional-section">
+            <h3>✨ Optional Details <span style="font-size: 14px; font-weight: normal; color: #666;">(leave blank for defaults)</span></h3>
+            
+            <div class="form-row">
+                <label>Year Renovated:</label>
+                <input type="number" step="1" name="yr_renovated" min="0" max="2025" placeholder="0 if never renovated">
+                <small>Year of major renovation (0 if never)</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Quality Grade:</label>
+                <select name="grade">
+                    <option value="">Use default (7 - Average)</option>
+                    <option value="3">3 - Low quality</option>
+                    <option value="5">5 - Fair quality</option>
+                    <option value="7">7 - Average quality</option>
+                    <option value="9">9 - Good quality</option>
+                    <option value="11">11 - Very good quality</option>
+                    <option value="13">13 - Luxury quality</option>
+                </select>
+                <small>Construction quality rating (1-13 scale)</small>
+            </div>
+            
+            <div class="form-row">
+                <label>Waterfront Property:</label>
+                <select name="waterfront">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <label>View Quality:</label>
+                <select name="view">
+                    <option value="0">No view</option>
+                    <option value="1">Fair view</option>
+                    <option value="2">Average view</option>
+                    <option value="3">Good view</option>
+                    <option value="4">Excellent view</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="predict-btn">💰 Calculate Price Estimate</button>
+    </form>
+    
+    {% if prediction_text %}
+        <div class="prediction-result">
+            <h3>{{ prediction_text }}</h3>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Auto-save form data to localStorage
+    function saveFormData() {
+        const formData = {};
+        const inputs = document.querySelectorAll("#houseForm input, #houseForm select");
+        inputs.forEach(input => {
+            formData[input.name] = input.value;
+        });
+        localStorage.setItem("houseFormData", JSON.stringify(formData));
+    }
+
+    // Load saved data from localStorage
+    function loadFormData() {
+        const savedData = localStorage.getItem("houseFormData");
+        if (savedData) {
+            try {
+                const formData = JSON.parse(savedData);
+                const inputs = document.querySelectorAll("#houseForm input, #houseForm select");
+                inputs.forEach(input => {
+                    if (formData[input.name] && formData[input.name] !== "") {
+                        input.value = formData[input.name];
+                    }
+                });
+            } catch (e) {
+                console.error("Error loading saved data:", e);
+            }
+        }
+    }
+
+    // Auto-save on input/change
+    document.querySelectorAll("#houseForm input, #houseForm select").forEach(input => {
+        input.addEventListener("input", saveFormData);
+        input.addEventListener("change", saveFormData);
+    });
+
+    // Load data when page loads
+    window.addEventListener("load", loadFormData);
+</script>
+
+<style>
+    .form-section {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        border-bottom: 2px solid #1976d2;
+        padding-bottom: 10px;
+    }
+    
+    .optional-section {
+        background: #f0f8ff;
+    }
+    
+    .form-row {
+        margin-bottom: 20px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    input, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    input:focus, select:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+    }
+    
+    small {
+        display: block;
+        color: #666;
+        font-size: 0.85em;
+        margin-top: 5px;
+    }
+    
+    .predict-btn {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #1976d2, #0d47a1);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.3s;
+    }
+    
+    .predict-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+    }
+    
+    .prediction-result {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        padding: 25px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        animation: slideIn 0.5s ease;
+    }
+    
+    .prediction-result h3 {
+        margin: 0;
+        font-size: 24px;
+        border: none;
+        padding: 0;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
